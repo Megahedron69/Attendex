@@ -1,0 +1,11 @@
+# .dockerignore
+
+# Exclude node_modules and other unnecessary files
+node_modules
+.git
+npm-debug.log
+yarn-error.log
+Dockerfile*
+docker-compose*
+*.md
+

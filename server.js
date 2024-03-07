@@ -1,30 +1,55 @@
 import express from "express";
 import dotenv from "dotenv";
+import spdy from "spdy";
 import helmet from "helmet";
-import mongoSanitize from "express-mongo-sanitize";
 import compression from "compression";
 import cors from "cors";
 import csurf from "tiny-csrf";
+import permissionsPolicy from "permissions-policy";
+import easyWaf from "easy-waf";
 import fs from "fs";
-import https from "https";
 import bodyParser from "body-parser";
 import session from "express-session";
 import cookieParser from "cookie-parser";
-import mongoRoutes from "./routes/mongoRoutes.js";
+import dbRoutes from "./routes/dbRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
-import { connectToMyDB } from "./config/mongoConfig.js";
 import { generalLimiter, authLimiter } from "./middleware/rateLimiter.js";
-import passport from "./config/passport.js";
+import loggerMiddleware from "./middleware/logger.js";
+import { enforceHTTPS } from "./middleware/secRedirects.js";
 dotenv.config();
 
 const port = process.env.portKey || 5000;
 const app = express();
 const options = {
-  key: fs.readFileSync("cert.key"),
-  cert: fs.readFileSync("cert.crt"),
-  ca: fs.readFileSync("ca.crt"),
+  key: fs.readFileSync("attendex.shop.key"),
+  cert: fs.readFileSync("attendex.shop.pem"),
+  ca: fs.readFileSync("attendex.shop.crt"),
+  spdy: {
+    plain: false,
+    protocols: ["h2", "spdy/3.1", "spdy/2", "spdy/3", "http/1.1"],
+    "x-forwarded-for": true,
+    connection: {
+      windowSize: 1024 * 1024, // Server's window size
+      autoSpdy31: false,
+    },
+  },
 };
-app.use(helmet());
+app.use(
+  helmet.hsts({
+    maxAge: 15552000,
+    includeSubDomains: true,
+    preload: true,
+  })
+);
+app.use(
+  easyWaf({
+    allowedHTTPMethods: ["GET", "POST"], //ALLOW MORE METHODS
+    customBlockedPage: "<h1>REQUEST BLOCKED</h1>",
+    ipBlacklist: [],
+    dryMode: true,
+  })
+);
+app.use(enforceHTTPS);
 app.disable("x-powered-by");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -40,16 +65,38 @@ app.use(
     cookie: { secure: "auto" },
   })
 );
+app.use(
+  permissionsPolicy({
+    features: {
+      displayCapture: ["none"],
+      serial: ["none"],
+      usb: ["none"],
+      executionWhileNotRendered: ["none"],
+      executionWhileOutOfViewport: ["none"],
+      syncScript: ["none"],
+      syncXhr: ["none"],
+      unsizedMedia: ["none"],
+      interestCohort: ["none"],
+      unoptimizedImages: ["none"],
+      unoptimizedLosslessImages: ["none"],
+      unoptimizedLossyImages: ["none"],
+      accelerometer: ["self"],
+      autoplay: ["self"],
+      camera: ["self"],
+      microphone: ["self"],
+      geolocation: ["self"],
+      notifications: ["self"],
+    },
+  })
+);
 // app.use(csurf(process.env.csrf_token, ["POST"]));
+app.use(loggerMiddleware);
 app.use(compression());
-app.use(mongoSanitize());
 app.use(cors());
 app.options("*", cors());
-app.use(passport.initialize());
-app.use(passport.session());
 app.use("/api", generalLimiter);
 app.use("/auth", authLimiter);
-app.use("/mongo", mongoRoutes);
+app.use(`/api/${process.env.API_V}`, dbRoutes);
 app.use("/auth", authRoutes);
 app.use((req, res, next) => {
   res.status(404).send("Sorry can't find that!");
@@ -68,8 +115,7 @@ app.use((err, req, res, next) => {
   res.status(500).send("Something broke!");
 });
 
-connectToMyDB();
-const server = https.createServer(options, app);
+const server = spdy.createServer(options, app);
 server.listen(port, () => {
   console.log(`All hands on port ${port}`);
 });
