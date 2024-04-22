@@ -12,9 +12,10 @@ USER root
 COPY . .
 
 # Copy certificates
-COPY attendex.shop.key /usr/src/app/attendex.shop.key
-COPY attendex.shop.pem /usr/src/app/attendex.shop.pem
-COPY attendex.shop.pem /usr/src/app/attendex.shop.crt
+COPY cert2.pem /usr/src/app/cert2.pem
+COPY chain2.pem /usr/src/app/chain2.pem
+COPY privkey2.pem /usr/src/app/privkey2.pem
+COPY fullchain2.pem /usr/src/app/fullchain2.pem
 
 # Expose the port that the application listens on.
 EXPOSE 5050

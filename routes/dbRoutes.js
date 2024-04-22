@@ -1,9 +1,11 @@
 import express from "express";
 import pool from "../config/pgConfig.cjs";
+import { uuidv8 } from "uuid-v8";
+
 const router = express.Router();
 router.post("/newUser", async (req, res, next) => {
   try {
-    const { email, password } = req.body; // destructure directly
+    const { email, password } = req.body;
     console.log("email:", email, "password:", password);
 
     const createTableQuery = `
@@ -33,24 +35,11 @@ router.get("/checkDatabase", async (req, res, next) => {
     const query = "SELECT 'Database is working' AS status";
     const result = await pool.query(query);
 
-    res.json(result.rows);
+    res.json({ result: result.rows });
   } catch (err) {
     console.log("Error checking database:", err);
     next(err);
   }
 });
-
-// router.get("/api/data", async (req, res, next) => {
-//   try {
-//     const allDat = await Biodata.find({});
-//     res.send(allDat);
-//   } catch (err) {
-//     console.log(err);
-//     next(err);
-//   }
-// });
-// router.get("/something", (req, res) => {
-//   res.send("Merry Christme");
-// });
 
 export default router;

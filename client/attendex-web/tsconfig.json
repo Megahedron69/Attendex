@@ -8,7 +8,7 @@
 		"esModuleInterop": true,
 
 		/* Bundler mode */
-		"moduleResolution": "bundler",
+		"moduleResolution": "node",
 		"allowImportingTsExtensions": true,
 		"resolveJsonModule": true,
 		"isolatedModules": true,
@@ -23,8 +23,8 @@
 		"noImplicitOverride": true,
 		"noImplicitReturns": true,
 		"noPropertyAccessFromIndexSignature": true,
-		"noUncheckedIndexedAccess": true
+		"noUncheckedIndexedAccess": true,
 	},
 	"include": ["src", "e2e"],
-	"references": [{ "path": "./tsconfig.node.json" }]
+	"references": [{ "path": "./tsconfig.node.json" }],
 }

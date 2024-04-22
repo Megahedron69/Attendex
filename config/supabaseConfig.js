@@ -13,3 +13,4 @@ const supabase = createClient(
 
 // Access auth admin api
 const adminAuthClient = supabase.auth.admin;
+export { supabase, adminAuthClient };

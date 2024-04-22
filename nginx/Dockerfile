@@ -7,8 +7,10 @@ WORKDIR /app/nginx
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Copy SSL certificates to a directory inside the container
-COPY attendex.shop.pem /etc/nginx/attendex.shop.pem
-COPY attendex.shop.key /etc/nginx/attendex.shop.key
+COPY cert2.pem /etc/nginx/cert2.pem
+COPY chain2.pem /etc/nginx/chain2.pem
+COPY privkey2.pem /etc/nginx/privkey2.pem
+COPY fullchain2.pem /etc/nginx/fullchain2.pem
 
 # Making log folder
 RUN mkdir -p /etc/nginx/logs/

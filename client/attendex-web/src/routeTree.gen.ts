@@ -4,11 +4,41 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
+import { Route as UserHomeImport } from './routes/user.Home'
+import { Route as UserAdminImport } from './routes/user.Admin'
+import { Route as AuthSignUpImport } from './routes/auth.SignUp'
+import { Route as AuthSignInImport } from './routes/auth.SignIn'
+import { Route as AuthForgotPasswordImport } from './routes/auth.ForgotPassword'
 
 // Create/Update Routes
 
 const IndexRoute = IndexImport.update({
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const UserHomeRoute = UserHomeImport.update({
+  path: '/user/Home',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const UserAdminRoute = UserAdminImport.update({
+  path: '/user/Admin',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AuthSignUpRoute = AuthSignUpImport.update({
+  path: '/auth/SignUp',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AuthSignInRoute = AuthSignInImport.update({
+  path: '/auth/SignIn',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AuthForgotPasswordRoute = AuthForgotPasswordImport.update({
+  path: '/auth/ForgotPassword',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -20,9 +50,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/auth/ForgotPassword': {
+      preLoaderRoute: typeof AuthForgotPasswordImport
+      parentRoute: typeof rootRoute
+    }
+    '/auth/SignIn': {
+      preLoaderRoute: typeof AuthSignInImport
+      parentRoute: typeof rootRoute
+    }
+    '/auth/SignUp': {
+      preLoaderRoute: typeof AuthSignUpImport
+      parentRoute: typeof rootRoute
+    }
+    '/user/Admin': {
+      preLoaderRoute: typeof UserAdminImport
+      parentRoute: typeof rootRoute
+    }
+    '/user/Home': {
+      preLoaderRoute: typeof UserHomeImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
 // Create and export the route tree
 
-export const routeTree = rootRoute.addChildren([IndexRoute])
+export const routeTree = rootRoute.addChildren([
+  IndexRoute,
+  AuthForgotPasswordRoute,
+  AuthSignInRoute,
+  AuthSignUpRoute,
+  UserAdminRoute,
+  UserHomeRoute,
+])

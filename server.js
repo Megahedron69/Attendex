@@ -13,17 +13,29 @@ import session from "express-session";
 import cookieParser from "cookie-parser";
 import dbRoutes from "./routes/dbRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import smartRoutes from "./routes/smartRoutes.js";
 import { generalLimiter, authLimiter } from "./middleware/rateLimiter.js";
 import loggerMiddleware from "./middleware/logger.js";
 import { enforceHTTPS } from "./middleware/secRedirects.js";
+import { charset } from "./middleware/charEncoding.js";
 dotenv.config();
 
 const port = process.env.portKey || 5000;
 const app = express();
+
 const options = {
-  key: fs.readFileSync("attendex.shop.key"),
-  cert: fs.readFileSync("attendex.shop.pem"),
-  ca: fs.readFileSync("attendex.shop.crt"),
+  key:
+    process.env.NODE_ENV === "development"
+      ? fs.readFileSync("attendex.shop.key")
+      : fs.readFileSync("privkey2.pem"),
+  cert:
+    process.env.NODE_ENV === "development"
+      ? fs.readFileSync("attendex.shop.pem")
+      : fs.readFileSync("cert2.pem"),
+  ca:
+    process.env.NODE_ENV === "development"
+      ? fs.readFileSync("attendex.shop.crt")
+      : fs.readFileSync("fullchain2.pem"),
   spdy: {
     plain: false,
     protocols: ["h2", "spdy/3.1", "spdy/2", "spdy/3", "http/1.1"],
@@ -43,7 +55,7 @@ app.use(
 );
 app.use(
   easyWaf({
-    allowedHTTPMethods: ["GET", "POST"], //ALLOW MORE METHODS
+    allowedHTTPMethods: ["GET", "POST", "OPTIONS"], //ALLOW MORE METHODS
     customBlockedPage: "<h1>REQUEST BLOCKED</h1>",
     ipBlacklist: [],
     dryMode: true,
@@ -90,14 +102,16 @@ app.use(
   })
 );
 // app.use(csurf(process.env.csrf_token, ["POST"]));
+app.use(charset);
 app.use(loggerMiddleware);
 app.use(compression());
 app.use(cors());
 app.options("*", cors());
-app.use("/api", generalLimiter);
-app.use("/auth", authLimiter);
+app.use("/api/V1", generalLimiter);
+app.use("/api/V1/auth", authLimiter);
 app.use(`/api/${process.env.API_V}`, dbRoutes);
-app.use("/auth", authRoutes);
+app.use(`/api/${process.env.API_V}/auth`, authRoutes);
+app.use(`/api/${process.env.API_V}/smart`, smartRoutes);
 app.use((req, res, next) => {
   res.status(404).send("Sorry can't find that!");
 });
