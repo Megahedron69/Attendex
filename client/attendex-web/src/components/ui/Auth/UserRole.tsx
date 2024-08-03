@@ -5,9 +5,11 @@ import { Avatar } from "antd";
 import { UserOutlined, VerifiedOutlined } from "@ant-design/icons";
 import type { FunctionComponent } from "react";
 import { userRoleStore } from "../../../store/UserRole";
+import { useNavigate } from "@tanstack/react-router";
 
 const UserRole: FunctionComponent = () => {
 	const { role, updateUserRole } = userRoleStore();
+	const navigate = useNavigate();
 	return (
 		<>
 			<div className="flex items-center flex-col mr-10 mt-20">
@@ -30,6 +32,7 @@ const UserRole: FunctionComponent = () => {
 					icon={<VerifiedOutlined />}
 					onClick={() => {
 						updateUserRole({ rolez: "admin" });
+						navigate({ to: "/auth/AdminAuth" });
 					}}
 				/>
 				<h1 className="pb-12 text-xl sm:text-2xl md:text-3xl lg:text-2xl xl:text-4xl xxl:text-6xl font-bold text-black">

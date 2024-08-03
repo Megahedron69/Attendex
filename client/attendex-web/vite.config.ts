@@ -25,7 +25,7 @@ export default defineConfig({
 		strictPort: true,
 		proxy: {
 			"/api/V1": {
-				target: "https://localhost:5050",
+				target: "https://localhost:5050/",
 				changeOrigin: true,
 				secure: false,
 				rewrite: (path) => path.replace(/^\/api\/V1/, "/api/V1"),

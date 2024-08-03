@@ -13,7 +13,7 @@ export default function FeaturesBlocks() {
 			<div className="relative max-w-6xl mx-auto px-4 sm:px-6">
 				<div className="py-12 md:py-20">
 					{/* Section header */}
-					<div className="max-w-3xl mx-auto text-center pb-12 md:pb-20">
+					<div className="max-w-3xl mx-auto text-center pb-12 md:pb-20 mt-96 md:mt-32 lg:mt-10">
 						<h2 className="h2 mb-4">Explore the stack</h2>
 						<p className="text-xl text-gray-600">
 							Attendex leverages state-of-the-art technologies, cutting-edge
@@ -175,25 +175,26 @@ export default function FeaturesBlocks() {
 										/>
 										<path
 											className="stroke-current text-white"
-											d="M32 37.714a5.714 5.714 0 015.714 5.715 5.714 5.714 0 015.715-5.715M20.571 26.286a5.714 5.714 0 005.715-5.715A5.714 5.714 0 0032 26.286"
+											d="M32 37.714a5.714 5.714 0 015.714 5.715 5.714 5.714 0 015.715-5.715"
+											opacity=".64"
 										/>
 										<path
 											className="stroke-current text-white"
-											d="M20.571 26.286A5.714 5.714 0 0126.286 32 5.714 5.714 0 0132 26.286"
+											d="M32 26.286A5.714 5.714 0 0126.286 32a5.714 5.714 0 01-5.715-5.714"
+											opacity=".64"
 										/>
 										<path
-											className="stroke-current text-blue-300"
-											d="M21.714 40h4.572M24 37.714v4.572M37.714 24h4.572M40 21.714v4.572"
-											strokeLinecap="square"
+											className="stroke-current text-white"
+											d="M32 26.286a5.714 5.714 0 00-5.714-5.715 5.714 5.714 0 00-5.715 5.715"
 										/>
 									</g>
 								</g>
 							</svg>
 							<h4 className="text-xl font-bold leading-snug tracking-tight mb-1">
-								Immune to attacks
+								NFC
 							</h4>
 							<p className="text-gray-600 text-center">
-								Immunity powered by cloudfare making it immune to 200+ attacks .
+								Near field communication for seamless attendance logging.
 							</p>
 						</div>
 
@@ -211,27 +212,26 @@ export default function FeaturesBlocks() {
 										height="64"
 										rx="32"
 									/>
-									<g strokeWidth="2">
-										<path
+									<g strokeWidth="2" transform="translate(21.714 19.429)">
+										<circle
 											className="stroke-current text-white"
-											d="M19.429 32a12.571 12.571 0 0021.46 8.89L23.111 23.11A12.528 12.528 0 0019.429 32z"
+											strokeLinecap="square"
+											cx="10.286"
+											cy="10.286"
+											r="1.143"
 										/>
 										<path
-											className="stroke-current text-blue-300"
-											d="M32 19.429c6.943 0 12.571 5.628 12.571 12.571M32 24a8 8 0 018 8"
-										/>
-										<path
 											className="stroke-current text-white"
-											d="M34.286 29.714L32 32"
+											d="M10.286 0v2.286M10.286 18.286v2.286M0 10.286h2.286M18.286 10.286h2.286M3.399 3.399l1.619 1.619M15.839 15.839l1.619 1.619M3.399 17.172l1.619-1.619M15.839 4.733l1.619-1.619"
 										/>
 									</g>
 								</g>
 							</svg>
 							<h4 className="text-xl font-bold leading-snug tracking-tight mb-1">
-								Extremely Smart
+								AI
 							</h4>
 							<p className="text-gray-600 text-center">
-								Analytics and console powered by 5+ AI models.
+								AI detection ensures accuracy and minimizes errors.
 							</p>
 						</div>
 
@@ -249,23 +249,34 @@ export default function FeaturesBlocks() {
 										height="64"
 										rx="32"
 									/>
-									<g strokeWidth="2" strokeLinecap="square">
+									<g strokeWidth="2">
+										<path
+											className="stroke-current text-blue-300"
+											d="M19.429 29.714h5.714L36.57 41.143h8"
+										/>
 										<path
 											className="stroke-current text-white"
-											d="M29.714 40.358l-4.777 2.51 1.349-7.865-5.715-5.57 7.898-1.147L32 21.13l3.531 7.155 7.898 1.147L40 32.775"
+											d="M24 22.857l5.714-5.714"
+											strokeLinecap="square"
 										/>
 										<path
 											className="stroke-current text-blue-300"
-											d="M44.571 43.429H34.286M44.571 37.714H34.286"
+											d="M19.429 34.286h5.714L36.57 22.857h8"
+										/>
+										<path
+											className="stroke-current text-white"
+											d="M24 41.143l5.714-5.714"
+											strokeLinecap="square"
 										/>
 									</g>
 								</g>
 							</svg>
 							<h4 className="text-xl font-bold leading-snug tracking-tight mb-1">
-								Free of cost
+								React
 							</h4>
 							<p className="text-gray-600 text-center">
-								Open source software available on all smart devices.
+								Modern front-end framework for building responsive and dynamic
+								user interfaces.
 							</p>
 						</div>
 					</div>

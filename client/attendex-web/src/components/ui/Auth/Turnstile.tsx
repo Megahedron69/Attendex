@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable no-duplicate-imports */
 import type React from "react";
 import { useState, useEffect } from "react";

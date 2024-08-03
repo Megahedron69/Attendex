@@ -14,7 +14,7 @@ smartRoutes.post(
       const faceVal = await extractFace(req.file.filename);
       const textVal = await extractText(req.file.filename);
       const processedVal = await nlpe(textVal);
-      res.json({
+      res.status(200).send({
         uid: req.file.filename.replace(/\.png$/, ""),
         inputVal: processedVal,
         face: faceVal ? faceVal : "",
@@ -25,6 +25,8 @@ smartRoutes.post(
   }
 );
 
-smartRoutes.get("/scanImage", async (req, res, next) => {});
+smartRoutes.get("/scanImage", async (req, res, next) => {
+  res.status(200).json({ message: "Working hai bhai" });
+});
 
 export default smartRoutes;

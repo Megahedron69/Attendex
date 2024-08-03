@@ -1,9 +1,20 @@
-import express from "express";
+import { Router } from "express";
 import pool from "../config/pgConfig.cjs";
 import { uuidv8 } from "uuid-v8";
 
-const router = express.Router();
-router.post("/newUser", async (req, res, next) => {
+const Dbrouter = Router();
+
+Dbrouter.get("/uidGen", async (req, res, next) => {
+  try {
+    const result = uuidv8();
+    res.json({ uid: result });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal error" });
+  }
+});
+
+Dbrouter.post("/newUser", async (req, res, next) => {
   try {
     const { email, password } = req.body;
     console.log("email:", email, "password:", password);
@@ -30,7 +41,8 @@ router.post("/newUser", async (req, res, next) => {
     next(err);
   }
 });
-router.get("/checkDatabase", async (req, res, next) => {
+
+Dbrouter.get("/checkDatabase", async (req, res, next) => {
   try {
     const query = "SELECT 'Database is working' AS status";
     const result = await pool.query(query);
@@ -42,4 +54,4 @@ router.get("/checkDatabase", async (req, res, next) => {
   }
 });
 
-export default router;
+export default Dbrouter;

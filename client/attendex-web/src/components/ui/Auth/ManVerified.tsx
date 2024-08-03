@@ -43,6 +43,10 @@ const ManVerified: React.FC = () => {
 		updateUserInfo,
 	} = userInfoStore();
 	const [checkDets, setcheckDets] = useState<boolean>(allDetailsValidated);
+	const [isValid, setIsValid] = useState<boolean>(false);
+	const [loading, setloading] = useState<boolean>(false);
+	const [errors, setErrors] = useState<Array<string>>([]);
+	const [detLoading, setDetLoading] = useState<boolean>(false);
 	const [formData, setFormData] = useState({
 		uid: userId,
 		FirstName: "",
@@ -58,6 +62,7 @@ const ManVerified: React.FC = () => {
 		start: "",
 		end: "",
 	});
+	console.log(formData);
 	useEffect(() => {
 		if (userId) {
 			setFormData({
@@ -91,10 +96,6 @@ const ManVerified: React.FC = () => {
 		startDate,
 		endDate,
 	]);
-	const [isValid, setIsValid] = useState<boolean>(false);
-	const [loading, setloading] = useState<boolean>(false);
-	const [errors, setErrors] = useState<Array<string>>([]);
-	const [detLoading, setDetLoading] = useState<boolean>(false);
 
 	const handleChange = (event) => {
 		const { name, value } = event.target;
@@ -107,9 +108,12 @@ const ManVerified: React.FC = () => {
 	const checkEmailExists = async (email) => {
 		try {
 			setloading(true);
-			const result = await axios.post("/api/V1/auth/checkEmail", { email });
+			const result = await axios.post(
+				`${String(import.meta.env["VITE_BASE_URL"])}/auth/checkEmail`,
+				{ email }
+			);
 			const data = await result.data;
-			data ? setIsValid(false) : setIsValid(true);
+			data.isEmailExist ? setIsValid(false) : setIsValid(true);
 			setloading(false);
 		} catch (err) {
 			setIsValid(false);

@@ -24,11 +24,8 @@ const steps = [
 		title: "Get Started!",
 		content: (
 			<div className="flex justify-center items-center flex-col">
-				<div>
+				<div className="flex justify-center items-center flex-col">
 					<Verified />
-				</div>
-				<div className="-mt-10">
-					<ManVerified />
 				</div>
 			</div>
 		),
@@ -98,7 +95,7 @@ const SignUp: React.FC = () => {
 				<div style={contentStyle} className="mt-4 p-4 bg-white">
 					{steps[current].content}
 				</div>
-				<div className="mt-4 bg-white">
+				<div className=" bg-white mt-11 items-baseline ju">
 					{current < steps.length - 1 && (
 						<button
 							className="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"

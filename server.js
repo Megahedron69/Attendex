@@ -1,8 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-import spdy from "spdy";
 import helmet from "helmet";
-import compression from "compression";
 import cors from "cors";
 import csurf from "tiny-csrf";
 import permissionsPolicy from "permissions-policy";
@@ -11,17 +9,22 @@ import fs from "fs";
 import bodyParser from "body-parser";
 import session from "express-session";
 import cookieParser from "cookie-parser";
+import http2 from "node:http2";
+import http2Express from "http2-express-bridge";
+
 import dbRoutes from "./routes/dbRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import smartRoutes from "./routes/smartRoutes.js";
+import markitRoutes from "./routes/markitRoutes.js";
 import { generalLimiter, authLimiter } from "./middleware/rateLimiter.js";
 import loggerMiddleware from "./middleware/logger.js";
 import { enforceHTTPS } from "./middleware/secRedirects.js";
 import { charset } from "./middleware/charEncoding.js";
+import client from "./config/redisConfig.js";
 dotenv.config();
 
 const port = process.env.portKey || 5000;
-const app = express();
+const app = http2Express(express);
 
 const options = {
   key:
@@ -36,16 +39,14 @@ const options = {
     process.env.NODE_ENV === "development"
       ? fs.readFileSync("attendex.shop.crt")
       : fs.readFileSync("fullchain2.pem"),
-  spdy: {
-    plain: false,
-    protocols: ["h2", "spdy/3.1", "spdy/2", "spdy/3", "http/1.1"],
-    "x-forwarded-for": true,
-    connection: {
-      windowSize: 1024 * 1024, // Server's window size
-      autoSpdy31: false,
-    },
-  },
 };
+
+const corsOptions = {
+  origin: "http://localhost:5173",
+  credentials: true, //access-control-allow-credentials:true
+  optionSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
 app.use(
   helmet.hsts({
     maxAge: 15552000,
@@ -65,7 +66,7 @@ app.use(enforceHTTPS);
 app.disable("x-powered-by");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser("cookie-parser-secret"));
+app.use(cookieParser(process.env.cookey));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -104,14 +105,13 @@ app.use(
 // app.use(csurf(process.env.csrf_token, ["POST"]));
 app.use(charset);
 app.use(loggerMiddleware);
-app.use(compression());
-app.use(cors());
-app.options("*", cors());
+
 app.use("/api/V1", generalLimiter);
 app.use("/api/V1/auth", authLimiter);
-app.use(`/api/${process.env.API_V}`, dbRoutes);
+app.use(`/api/${process.env.API_V}/db`, dbRoutes);
 app.use(`/api/${process.env.API_V}/auth`, authRoutes);
 app.use(`/api/${process.env.API_V}/smart`, smartRoutes);
+app.use(`/api/${process.env.API_V}/markit`, markitRoutes);
 app.use((req, res, next) => {
   res.status(404).send("Sorry can't find that!");
 });
@@ -121,6 +121,9 @@ app.use((req, res, next) => {
   }
   next();
 });
+app.get("/", (req, res) => {
+  res.send("Hello");
+});
 app.use((err, req, res, next) => {
   console.error(err.stack);
   if (err.name === "HTTPError") {
@@ -129,7 +132,22 @@ app.use((err, req, res, next) => {
   res.status(500).send("Something broke!");
 });
 
-const server = spdy.createServer(options, app);
+const server = http2.createSecureServer(options, app);
 server.listen(port, () => {
   console.log(`All hands on port ${port}`);
 });
+app.listen(80, () => {
+  console.log("port 80");
+});
+const shutdown = () => {
+  server.close(() => {
+    console.log("Server shutting down");
+    client.disconnect().then(() => {
+      console.log("Redis client disconnected");
+      process.exit(0);
+    });
+  });
+};
+
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);

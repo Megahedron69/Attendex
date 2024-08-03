@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
+/* eslint-disable @typescript-eslint/no-floating-promises */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable unicorn/better-regex */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
@@ -22,7 +27,7 @@ export const AuthCard = () => {
 		passErr: false,
 	});
 
-	const validateMyEmail = (email: String) => {
+	const validateMyEmail = (email: string) => {
 		const p = email.match(/^[\w+.-]+@[\da-z-]+\.[\d.a-z-]+$/i);
 		setError((previous) => ({ ...previous, emailErr: !p }));
 	};
@@ -32,11 +37,11 @@ export const AuthCard = () => {
 		);
 		setError((previous) => ({ ...previous, passErr: !p }));
 	};
-	const onChange = (event) => {
+	const onChange = (event: { target: { name: any; value: any } }) => {
 		const { name, value } = event.target;
 		setSignInData({ ...signInData, [name]: value });
 	};
-	const onSubmit = async (event) => {
+	const onSubmit = async (event: { preventDefault: () => void }) => {
 		event.preventDefault();
 		try {
 			await signInWithEmail(
@@ -47,14 +52,14 @@ export const AuthCard = () => {
 					: role.userTok,
 				router
 			);
-		} catch (error) {
+		} catch {
 			message.error(`errorz`);
 		}
 	};
 
 	return (
 		<Card
-			className="block max-w-sm p-0 bg-white border border-gray-200 rounded-lg shadow hover:bg-white-100 dark:bg-white-800 dark:border-gray-700 dark:hover:bg-white-50 dark:border sm:w-32"
+			className="mt-12 block max-w-sm p-0 bg-white border border-gray-200 rounded-lg shadow hover:bg-white-100 dark:bg-white-800 dark:border-gray-700 dark:hover:bg-white-50 dark:border sm:w-32"
 			bordered={true}
 			style={{ width: "100%", height: "100%" }}
 			hoverable
@@ -80,19 +85,6 @@ export const AuthCard = () => {
 				</div>
 			</div>
 
-			<div className="flex items-center justify-center w-auto rounded-lg bg-white">
-				<div className="flex items-center">
-					<button className="px-4 py-2 md:w-72 w-full  mt-5 border flex gap-2 hover:bg-gray-100 border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 hover:border-slate-500 dark:hover:border-slate-500 hover:text-slate-900 dark:hover:text-slate-300 hover:shadow transition duration-150">
-						<img
-							className="w-6 h-6"
-							src="https://img.icons8.com/ios/100/face-id--v1.png"
-							loading="lazy"
-							alt="google logo"
-						/>
-						<span className="text-black">Login with Passkey</span>
-					</button>
-				</div>
-			</div>
 			<div className="inline-flex items-center justify-center w-full">
 				<hr className="w-64 h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
 				<span className="absolute px-3 font-medium text-gray-900 -translate-x-1/2 bg-white left-1/2 dark:text-black dark:bg-white	">
@@ -107,7 +99,6 @@ export const AuthCard = () => {
 						</h1>
 						<form
 							className="space-y-4 md:space-y-6 text-left"
-							action="#"
 							onSubmit={onSubmit}
 						>
 							<div>
@@ -186,7 +177,7 @@ export const AuthCard = () => {
 									</div>
 								</div>
 								<Link
-									to="/auth/ForgotPassword"
+									to="/Auth/ForgotPassword"
 									className="text-sm font-medium text-primary-600 hover:underline dark:text-gray-500"
 								>
 									Forgot password?
@@ -211,7 +202,7 @@ export const AuthCard = () => {
 							<p className="text-sm font-light text-gray-500 dark:text-gray-500">
 								Don’t have an account yet?{" "}
 								<Link
-									to="/auth/SignUp"
+									to="/Auth/SignUp"
 									className="font-medium text-primary-600 hover:underline dark:text-primary-500"
 								>
 									Sign up

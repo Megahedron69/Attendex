@@ -1,4 +1,4 @@
-import { useEffect, type FC } from "react";
+import type { FC } from "react";
 import Hero from "../components/ui/LandingPage/hero";
 import Features from "../components/ui/LandingPage/features";
 import FeaturesBlocks from "../components/ui/LandingPage/features-blocks";
@@ -7,13 +7,13 @@ import Newsletter from "../components/ui/LandingPage/newsletter";
 
 const LandingPage: FC = () => {
 	return (
-		<>
+		<div className="">
 			<Hero />
 			<Features />
 			<FeaturesBlocks />
 			<Testimonials />
 			<Newsletter />
-		</>
+		</div>
 	);
 };
 
