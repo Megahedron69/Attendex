@@ -1,6 +1,11 @@
 import { Router } from "express";
-import Joi from "joi";
+import {
+  emailValid,
+  otpValid,
+  userDetValid,
+} from "../controllers/Validator.js";
 import pool from "../config/pgConfig.cjs";
+import { validateUserData } from "../controllers/Validator.js";
 import {
   mySignInFunc,
   checkMyAuthStatus,
@@ -10,43 +15,17 @@ import {
   resetMyPass,
   getSession,
   isAdmin,
+  mfaEnroll,
+  mfaVerify,
 } from "../controllers/Auth.js";
 
 const authRouter = Router();
+
 authRouter.post("/checkDets", (req, res, next) => {
-  const schema = Joi.object({
-    uid: Joi.string().guid(),
-    FirstName: Joi.string()
-      .min(3)
-      .max(15)
-      .pattern(/^[A-Za-z]+$/)
-      .required(),
-    LastName: Joi.string()
-      .min(3)
-      .max(15)
-      .pattern(/^[A-Za-z]+$/)
-      .required(),
-    Email: Joi.string()
-      .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
-      .required(),
-    Gender: Joi.string().valid("male", "female").required(),
-    Age: Joi.number().integer().min(20).max(99).required(),
-    Organisation: Joi.string().required().min(3),
-    start: Joi.date().required(),
-    end: Joi.date().less("2099-12-31").required(),
-    JobTitle: Joi.string().required().min(3),
-    Phone: Joi.string()
-      .pattern(/\b\d{10,12}\b/)
-      .required(),
-    Address: Joi.string().min(5).max(40).required(),
-    ProfilePic: Joi.string().dataUri().required(),
-  }).options({ abortEarly: false });
-  const { error, value } = schema.validate(req.body);
+  const { error, value } = validateUserData(req.body);
   if (error) {
     res.json(error);
   } else {
-    // If validation succeeds, process the data
-    // Here you can save the data to the database or perform any other operations
     res.json({ message: "Form submitted successfully", data: value });
   }
 });
@@ -68,12 +47,7 @@ authRouter.get("/isAdmin", async (req, res, next) => {
 authRouter.post("/checkEmail", async (req, res, next) => {
   try {
     const { email } = req.body;
-    const schema = Joi.object({
-      Email: Joi.string()
-        .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
-        .required(),
-    });
-    const { error, value } = schema.validate({ Email: email });
+    const { error } = emailValid({ email });
     if (error) {
       return res
         .status(400)
@@ -124,8 +98,14 @@ authRouter.get("/authStatus", async (req, res, next) => {
 authRouter.post("/signUp", async (req, res, next) => {
   try {
     const { mail, pass, tok } = req.body;
+    const { error } = userDetValid(req.body);
+    if (error) {
+      const errorMessages = error.details.map((detail) => detail.message);
+      return res.status(400).json({ status: false, data: errorMessages });
+    }
     const response = await mySignUpFunc(mail, pass, tok);
-    if (response.error) res.status(404).json({ error: response.error });
+    if (response.error)
+      return res.status(404).json({ status: false, error: response.error });
     else res.status(200).json({ data: response.data });
   } catch (err) {
     res.status(500).send("Internal server error");
@@ -145,33 +125,47 @@ authRouter.get("/googleSign", async (req, res, next) => {
   }
 });
 
-authRouter.get(
-  "/callback",
-  async (req, res) => {
-    const response = await getSession(req.query);
-    console.log("callback response is", response);
-    if (response.error) {
-      return res.status(400).json({ error: response.error.message });
-    }
-    res
-      .cookie("access", response.access_token, {
-        httpOnly: true, // Ensures the cookie is only accessible via HTTP(S), not JavaScript
-        secure: true, // Ensures the cookie is only sent over HTTPS
-        maxAge: sess.expires_in * 1000, // Sets the cookie expiration time
-        sameSite: "lax",
-        partitioned: true,
-        signed: true,
-      })
-      .status(200)
-      .redirect(`${process.env.FRONTEND_DOMAIN}/User/Home`);
+authRouter.get("/callback", async (req, res) => {
+  const response = await getSession(req.query);
+  console.log("callback response is", response);
+  if (response.error) {
+    return res.status(400).json({ error: response.error.message });
   }
-  // Set the token in a cookie
-);
+  res
+    .cookie("access", response.access_token, {
+      httpOnly: true, // Ensures the cookie is only accessible via HTTP(S), not JavaScript
+      secure: true, // Ensures the cookie is only sent over HTTPS
+      maxAge: sess.expires_in * 1000, // Sets the cookie expiration time
+      sameSite: "lax",
+      partitioned: true,
+      signed: true,
+    })
+    .status(200)
+    .redirect(`${process.env.FRONTEND_DOMAIN}/User/Home`);
+});
 
 authRouter.post("/signIn", async (req, res, next) => {
   const { mail, pass, tok } = req.body;
+  const { error } = userDetValid({ mail, pass, tok });
+  if (error) {
+    const errorMessages = error.details.map((detail) => detail.message);
+    return res.status(400).json({ status: false, data: errorMessages });
+  }
   const result = await mySignInFunc(mail, pass, tok);
-  const sess = await result.data.session;
+  if (result.error || !!result.data.user.email_confirmed_at === false) {
+    return res
+      .status(402)
+      .json({ status: false, message: "Please Confirm your email" });
+  }
+  if (result.error || !result.data.session) {
+    return res
+      .status(401)
+      .json({ status: false, message: "Invalid email or password." });
+  }
+  // if (result.error || !result.data.user.app_metadata.mfaStatus?.mStat) {
+  //   return res.status(403).json({ status: false, message: "MFA not enabled" });
+  // }
+  const sess = result.data.session;
   const clientType = req.headers["client-type"];
   if (result.error) {
     res.status(400).json({ error: result.error });
@@ -193,8 +187,81 @@ authRouter.post("/signIn", async (req, res, next) => {
           signed: true,
         })
         .status(200)
-        .json({ data: result.data });
+        .json({
+          status: true,
+          data: result.data,
+          emailConfirmed: !!result.data.user.email_confirmed_at,
+          mfaStatus: !!result.data.user.app_metadata.mfaEnabled,
+        });
     }
+  }
+});
+
+authRouter.get("/mfaEnroll", async (req, res, next) => {
+  try {
+    const resp = await mfaEnroll();
+    if (resp.error)
+      return res.status(400).json({ status: false, message: resp.error });
+    return res.status(200).json({ status: true, resp });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json("Internal Server Error");
+  }
+});
+
+authRouter.post("/mfaVerify", async (req, res, next) => {
+  try {
+    const { otp, mfaID } = req.body;
+    console.log("OTP is", otp);
+    console.log("id is", mfaID);
+    // const { error } = otpValid({ otp, mfaID });
+    // const clientType = req.headers["client-type"];
+    // if (error)
+    //   return res
+    //     .status(400)
+    //     .json({ status: "false", message: "Incorrect OTP entered" });
+    const resp = await mfaVerify(mfaID, otp);
+    console.log("resp is", resp);
+    if (resp.error)
+      return res
+        .status(401)
+        .json({ status: false, message: "Incorrect OTP entered" });
+    else {
+      if (clientType === "react-native") {
+        res.status(200).json({
+          access_token: resp.data.access_token,
+          refresh_token: resp.data.refresh_token,
+          expires_in: resp.data.expires_in,
+        });
+      } else {
+        res
+          .cookie("access", resp.data.access_token, {
+            httpOnly: true, // Ensures the cookie is only accessible via HTTP(S), not JavaScript
+            secure: true, // Ensures the cookie is only sent over HTTPS
+            maxAge: resp.data.expires_in * 1000, // Sets the cookie expiration time
+            sameSite: "lax",
+            partitioned: true,
+            signed: true,
+          })
+          .cookie("refresh", resp.data.refresh_token, {
+            httpOnly: true, // Accessible only by the web server
+            secure: true, // Transmit cookie only over HTTPS
+            maxAge: 30 * 24 * 60 * 60 * 1000, // Refresh token typically has a longer lifespan (e.g., 30 days)
+            sameSite: "lax", // Prevents CSRF attacks
+            partitioned: true, // Ensures cookie isolation
+            signed: true, // Prevents tampering with the cookie
+          })
+          .status(200)
+          .json({
+            status: true,
+            message: "Sign in successfull",
+            adminDat: !!resp.data.user.app_metadata.claims_admin,
+          });
+      }
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json("Internal Server Error");
   }
 });
 
@@ -202,8 +269,7 @@ authRouter.get("/signOut", async (req, res, next) => {
   try {
     const clientType = req.headers["client-type"];
     const response = await signMeOut();
-    if (clientType === "react-native") {
-      // For React Native clients, just return the status
+    if (clientType && clientType === "react-native") {
       if (response) {
         res.status(200).send(true);
       } else {

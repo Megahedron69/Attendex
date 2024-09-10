@@ -4,6 +4,7 @@ import { create } from "zustand";
 
 type infoStore = {
 	userId: string;
+	orgId: string;
 	firstName: string;
 	lastName: string;
 	email: string;
@@ -19,6 +20,7 @@ type infoStore = {
 	allDetailsValidated: boolean;
 	updateUserInfo: (parameters: {
 		userId: string;
+		orgId: string;
 		firstName: string;
 		lastName: string;
 		email: string;
@@ -37,6 +39,7 @@ type infoStore = {
 
 export const userInfoStore = create<infoStore>((set) => ({
 	userId: "",
+	orgId: "",
 	firstName: "",
 	lastName: "",
 	email: "",

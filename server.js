@@ -62,7 +62,7 @@ app.use(
     dryMode: true,
   })
 );
-app.use(enforceHTTPS);
+// app.use(enforceHTTPS);   //disable to enable port 80
 app.disable("x-powered-by");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

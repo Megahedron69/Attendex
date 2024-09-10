@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable no-duplicate-imports */
 import type React from "react";
 import {
@@ -6,7 +9,7 @@ import {
 	DatePicker,
 	Radio,
 	Form,
-	message,
+	Select,
 	Popover,
 	Button,
 	List,
@@ -21,12 +24,13 @@ import ProfilePic from "./ProfilePic";
 import { userInfoStore } from "../../../store/UserInfo";
 import { useEffect, useState } from "react";
 import axios from "axios";
-
+import { useOrgData } from "../../../store/DataFetch";
 const { RangePicker } = DatePicker;
 
 const ManVerified: React.FC = () => {
 	const {
 		userId,
+		orgId,
 		firstName,
 		lastName,
 		email,
@@ -42,6 +46,9 @@ const ManVerified: React.FC = () => {
 		allDetailsValidated,
 		updateUserInfo,
 	} = userInfoStore();
+	const { data, isLoading, isError } = useOrgData(
+		`${String(import.meta.env["VITE_BASE_URL"])}/db/organisations`
+	);
 	const [checkDets, setcheckDets] = useState<boolean>(allDetailsValidated);
 	const [isValid, setIsValid] = useState<boolean>(false);
 	const [loading, setloading] = useState<boolean>(false);
@@ -49,6 +56,7 @@ const ManVerified: React.FC = () => {
 	const [detLoading, setDetLoading] = useState<boolean>(false);
 	const [formData, setFormData] = useState({
 		uid: userId,
+		orgId: "",
 		FirstName: "",
 		LastName: "",
 		Email: "",
@@ -67,6 +75,7 @@ const ManVerified: React.FC = () => {
 		if (userId) {
 			setFormData({
 				uid: userId,
+				orgId: orgId,
 				FirstName: firstName,
 				LastName: lastName,
 				Email: email,
@@ -83,6 +92,7 @@ const ManVerified: React.FC = () => {
 		}
 	}, [
 		userId,
+		orgId,
 		firstName,
 		lastName,
 		email,
@@ -96,6 +106,17 @@ const ManVerified: React.FC = () => {
 		startDate,
 		endDate,
 	]);
+
+	useEffect(() => {
+		if (data) {
+			const selectedOrg = data.find(
+				(o) => o.org_name === formData.Organisation
+			);
+			if (selectedOrg) {
+				setFormData((prev) => ({ ...prev, orgId: selectedOrg.org_id }));
+			}
+		}
+	}, [formData.Organisation, data]);
 
 	const handleChange = (event) => {
 		const { name, value } = event.target;
@@ -119,7 +140,8 @@ const ManVerified: React.FC = () => {
 			setIsValid(false);
 		}
 	};
-	const validateMyDets = async () => {
+	const validateMyDets = async (event) => {
+		event.preventDefault();
 		try {
 			setDetLoading(true);
 			const result = await axios.post(
@@ -140,6 +162,7 @@ const ManVerified: React.FC = () => {
 				setDetLoading(false);
 				updateUserInfo({
 					userId: formData.uid,
+					orgId: formData.orgId,
 					firstName: formData.FirstName,
 					lastName: formData.LastName,
 					email: formData.Email,
@@ -158,6 +181,12 @@ const ManVerified: React.FC = () => {
 		} catch {
 			setcheckDets(false);
 		}
+	};
+	const handleProfilePicChange = (newPicUrl) => {
+		setFormData({
+			...formData,
+			ProfilePic: newPicUrl,
+		});
 	};
 	return userId ? (
 		<Form title="User Details" requiredMark disabled={checkDets}>
@@ -239,7 +268,12 @@ const ManVerified: React.FC = () => {
 										disabled={checkDets}
 									/>
 									{loading ? (
-										<LoadingOutlined className="text-yellow-400" />
+										<LoadingOutlined
+											className="text-yellow-400"
+											onClick={() => {
+												setloading(false);
+											}}
+										/>
 									) : isValid ? (
 										<CheckCircleOutlined
 											className="text-green-400"
@@ -269,7 +303,7 @@ const ManVerified: React.FC = () => {
 								defaultValue={gender}
 								buttonStyle="solid"
 								size="small"
-								name="Gender"
+								className="max-w-fit"
 								onChange={(event) => {
 									setFormData({ ...formData, Gender: event.target.value });
 								}}
@@ -307,22 +341,44 @@ const ManVerified: React.FC = () => {
 						label: "Organisation",
 						children: (
 							<>
-								<input
-									type="text"
+								<Select
+									size="small"
+									variant="borderless"
 									defaultValue={organisation}
+									showSearch
+									onChange={(val) => {
+										const selectedOrg = data.find((o) => o.org_name === val);
+										if (selectedOrg) {
+											setFormData((prev) => ({
+												...prev,
+												Organisation: val,
+												orgId: selectedOrg.org_id,
+											}));
+										} else {
+											setFormData((prev) => ({
+												...prev,
+												Organisation: val,
+												orgId: "",
+											}));
+										}
+									}}
+									loading={isLoading}
+									allowClear
 									className="bg-gray-50 outline-none border-0 hover:border-2 focus:border-2 text-center peer invalid:border-pink-500 invalid:text-pink-600
-      focus:invalid:border-pink-500 focus:invalid:ring-4-pink-500 border-none disabled:cursor-not-allowed"
-									pattern="^[a-zA-Z0-9]+$"
-									required
-									name="Organisation"
-									onChange={handleChange}
-									maxLength={20}
-									minLength={3}
+      focus:invalid:border-pink-500 focus:invalid:ring-4-pink-500 border-none disabled:cursor-not-allowed w-full"
+									options={(data || []).map((d) => ({
+										value: d.org_name,
+										label: d.org_name,
+									}))}
 									disabled={checkDets}
 								/>
-								<p className="mt-1 peer-valid:hidden peer-invalid:visible text-pink-600 text-2xs">
-									Please provide a valid organisation name.
-								</p>
+								{data ? (
+									!data.find((o) => o.org_name === formData.Organisation) ? (
+										<p className="mt-1 peer-valid:hidden peer-invalid:visible text-pink-600 text-2xs">
+											Only employees of registered organisations can proceed
+										</p>
+									) : null
+								) : null}
 							</>
 						),
 					},
@@ -349,10 +405,6 @@ const ManVerified: React.FC = () => {
 										end: endDateString,
 									});
 								}}
-								defaultValue={[
-									dayjs(startDate, "YYYY"),
-									dayjs(endDate, "YYYY"),
-								]}
 								minDate={dayjs("2005-01-01", "YYYY")}
 								maxDate={dayjs("2099-01-01", "YYYY")}
 							/>
@@ -425,7 +477,13 @@ const ManVerified: React.FC = () => {
 					{
 						label: "Profile Picture",
 						span: { xs: 1, sm: 2, md: 3, lg: 3, xl: 2, xxl: 2 },
-						children: <ProfilePic userID={userId} picUrl={profilePic} />,
+						children: (
+							<ProfilePic
+								userID={userId}
+								picUrl={formData.ProfilePic}
+								handlePicChange={handleProfilePicChange}
+							/>
+						),
 					},
 				]}
 			/>

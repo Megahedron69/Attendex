@@ -34,3 +34,8 @@
 		box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.5);
 	}
 }
+
+.myModal .ant-modal {
+	width: "75%";
+	height: "auto";
+}

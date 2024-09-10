@@ -117,3 +117,39 @@ export const resetMyPass = async (email, tok) => {
     console.log(error);
   }
 };
+
+export const mfaEnroll = async (id) => {
+  try {
+    const { data, error } = await supabase.auth.mfa.enroll({
+      factorType: "totp",
+      friendlyName: "Qr-Code",
+    });
+    return { data, error };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const mfaVerify = async (fId, otp) => {
+  try {
+    const { data, error } = await supabase.auth.mfa.challengeAndVerify({
+      factorId: fId,
+      code: otp,
+    });
+
+    if (error) {
+      console.log("err is", error);
+      throw new Error(`MFA Verification failed: ${error.message}`);
+    }
+
+    if (!data || !data.access_token) {
+      console.log("NO data");
+      throw new Error("MFA Verification failed: Missing access token or data");
+    }
+
+    return { data, error: null };
+  } catch (err) {
+    console.log("MFA Verification Error:", err);
+    return { data: null, error: err };
+  }
+};

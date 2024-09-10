@@ -2,6 +2,8 @@ import path from "path";
 import * as faceapi from "@vladmandic/face-api";
 import * as canvas from "canvas";
 import "@tensorflow/tfjs-node";
+import { supabase } from "../../config/supabaseConfig.js";
+import sharp from "sharp";
 
 export const extractFace = async (fileName) => {
   try {
@@ -36,7 +38,27 @@ export const extractFace = async (fileName) => {
         faceWidth,
         faceHeight
       );
-      const faceBase64 = faceCanvas.toDataURL("image/png");
+      const faceBuffer = faceCanvas.toBuffer("image/png");
+
+      const compressedBuffer = await sharp(faceBuffer)
+        .resize(120, 120)
+        .png({ quality: 50 })
+        .toBuffer();
+
+      const { data, error } = await supabase.storage
+        .from("Avatars")
+        .upload(`UserAvatars/${fileName}`, compressedBuffer, {
+          contentType: "image/png",
+          upsert: true,
+        });
+
+      if (error) {
+        throw error;
+      }
+      const dataz = supabase.storage
+        .from("Avatars")
+        .getPublicUrl(`UserAvatars/${fileName}`);
+      const faceBase64 = dataz.data.publicUrl;
       const gender = await faceapi
         .detectSingleFace(faceCanvas)
         .withAgeAndGender();

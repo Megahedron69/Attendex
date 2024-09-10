@@ -46,6 +46,7 @@ const Verified: FunctionComponent = () => {
 			console.log("res is", res.data, options.file);
 			updateUserInfo({
 				userId: res.data.uid,
+				orgId: "",
 				firstName:
 					res.data.inputVal.name.ptrs.length > 0
 						? res.data.inputVal.name.ptrs[0][3].split("|")[0]
@@ -78,11 +79,11 @@ const Verified: FunctionComponent = () => {
 				startDate:
 					res.data.inputVal.validity.length > 0
 						? res.data.inputVal.validity[0].split("-")[0]
-						: "",
+						: null,
 				endDate:
 					res.data.inputVal.validity.length > 0
 						? res.data.inputVal.validity[0].split("-")[1]
-						: "",
+						: null,
 				allDetailsValidated: false,
 			});
 			setAutomaticMode(true);
