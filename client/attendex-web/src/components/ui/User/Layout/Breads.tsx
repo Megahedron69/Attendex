@@ -17,7 +17,7 @@ const Breads: FC = () => {
 
 	return (
 		<div className="flex flex-col md:flex-row justify-between items-center mt-20">
-			<div className="flex justify-start items-center  md:mb-0">
+			<div className="flex justify-start items-center  md:mb-0 md:items-start">
 				<Breadcrumb>
 					<Breadcrumb.Item>
 						<Link to="/User/Home">
@@ -36,7 +36,9 @@ const Breads: FC = () => {
 				</Breadcrumb>
 			</div>
 			<div
-				className={`${pathname === "Home" ? "visible" : "hidden"} flex flex-col md:flex-row items-center mr-6 space-y-4 md:space-y-0 md:space-x-4`}
+				className={`${
+					pathname === "Home" ? "md:block hidden" : "hidden"
+				} flex flex-col md:flex-row items-center mr-6 space-y-4 md:space-y-0 md:space-x-4`}
 			>
 				<div className="relative inline-block">
 					<DatePicker

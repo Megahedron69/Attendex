@@ -9,7 +9,7 @@ import {
   Chip,
 } from "react-native-paper";
 import Icon from "react-native-vector-icons/AntDesign";
-import { signOut } from "../Utils/Auth";
+import { signOut } from "../../Utils/Auth";
 import { useNavigation } from "@react-navigation/native";
 
 interface TooltipProps {
@@ -24,12 +24,14 @@ const Tooltip: FC<TooltipProps> = ({ children, tooltipText }) => {
 
   return (
     <View>
-      <TouchableOpacity onPress={showTooltip}>{children}</TouchableOpacity>
+      <TouchableOpacity onPress={showTooltip} activeOpacity={0.9}>
+        {children}
+      </TouchableOpacity>
       <Portal>
         <Dialog
           visible={visible}
           onDismiss={hideTooltip}
-          style={{ width: "auto", height: 400 }}
+          style={{ width: "auto", height: 400, backgroundColor: "black" }}
         >
           <Dialog.Content>
             <Paragraph>{tooltipText}</Paragraph>
@@ -184,7 +186,7 @@ const styles = StyleSheet.create({
     zIndex: 30,
   },
   header: {
-    backgroundColor: "#000002",
+    backgroundColor: "#fff",
     height: 40,
     marginHorizontal: 5,
     borderBottomLeftRadius: 15,
@@ -198,6 +200,7 @@ const styles = StyleSheet.create({
   cardContainer: {
     marginTop: 10,
     marginHorizontal: 5,
+    zIndex: 30,
   },
   card: {
     padding: 10,
@@ -207,6 +210,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 5,
     borderRadius: 15,
+    backgroundColor: "#f8f3f9",
   },
   dateTimeContainer: {
     flexDirection: "row",
@@ -250,7 +254,8 @@ const styles = StyleSheet.create({
   },
   tooltipText: {
     marginBottom: 5,
-    fontWeight: "400",
+    fontWeight: "500",
+    color: "#fff",
   },
   tooltipIndiContent: {
     display: "flex",
@@ -262,6 +267,15 @@ const styles = StyleSheet.create({
   },
   chip: {
     marginVertical: 5,
+    shadowColor: "#fff",
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.37,
+    shadowRadius: 7.49,
+
+    elevation: 12,
   },
   chipContainer: {
     display: "flex",
@@ -272,6 +286,7 @@ const styles = StyleSheet.create({
   dialog: {
     maxWidth: "80%",
     alignSelf: "center",
+    backgroundColor: "white",
   },
 });
 

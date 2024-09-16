@@ -215,7 +215,7 @@ authRouter.post("/mfaVerify", async (req, res, next) => {
     console.log("OTP is", otp);
     console.log("id is", mfaID);
     // const { error } = otpValid({ otp, mfaID });
-    // const clientType = req.headers["client-type"];
+    const clientType = req.headers["client-type"];
     // if (error)
     //   return res
     //     .status(400)

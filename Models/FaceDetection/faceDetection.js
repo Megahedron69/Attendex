@@ -8,6 +8,7 @@ import sharp from "sharp";
 export const extractFace = async (fileName) => {
   try {
     const currDir = process.cwd();
+    console.log(currDir);
     const mPath = path.join(currDir, "/Models/FaceDetection");
     const iPath = path.join(currDir, `idCards/${fileName}`);
     const { Canvas, Image, createCanvas } = canvas;

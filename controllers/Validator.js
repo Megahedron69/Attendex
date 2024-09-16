@@ -92,3 +92,22 @@ export const otpValid = (data) => {
   });
   return schema.validate(data);
 };
+
+export const coordinatesValid = (data) => {
+  const schema = Joi.object({
+    latitude: Joi.number().min(-90).max(90).required().messages({
+      "number.base": "Latitude must be a number",
+      "number.min": "Latitude must be greater than or equal to -90",
+      "number.max": "Latitude must be less than or equal to 90",
+      "any.required": "Latitude is required",
+    }),
+
+    longitude: Joi.number().min(-180).max(180).required().messages({
+      "number.base": "Longitude must be a number",
+      "number.min": "Longitude must be greater than or equal to -180",
+      "number.max": "Longitude must be less than or equal to 180",
+      "any.required": "Longitude is required",
+    }),
+  });
+  return schema.validate(data);
+};

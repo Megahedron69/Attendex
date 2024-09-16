@@ -19,10 +19,13 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "permissions": [
-        "android.permission.NFC"
-      ],
-      "package": "com.megahedron69.Attendexcompanion"
+      "permissions": ["android.permission.NFC"],
+      "package": "com.megahedron69.Attendexcompanion",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDsEEAWuSVzfNAtlDBq_1nvMBjTqDCOOLE"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -33,19 +36,33 @@
         "react-native-nfc-manager",
         {
           "nfcPermission": "Grant permission for attendance",
-          "selectIdentifiers": [
-            "A0000002471001"
-          ],
-          "systemCodes": [
-            "8008"
-          ],
+          "selectIdentifiers": ["A0000002471001"],
+          "systemCodes": ["8008"],
           "includeNdefEntitlement": false
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
         }
       ],
       [
         "expo-dev-launcher",
         {
           "launchMode": "most-recent"
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera"
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID."
         }
       ]
     ],

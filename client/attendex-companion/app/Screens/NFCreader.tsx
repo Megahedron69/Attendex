@@ -8,16 +8,24 @@ import {
   ScrollView,
 } from "react-native";
 import NfcManager, { NfcTech, NfcEvents } from "react-native-nfc-manager";
-import { NFCLottie } from "./Lottie";
-import NFCHeader from "./NFCHeader";
+import { NFCLottie } from "../../Utils/Lottie";
 import { Toast } from "react-native-toast-notifications";
+import { type RouteProps } from "../../Utils/Constants";
+import { useRoute } from "@react-navigation/native";
 
 const NFCreader = () => {
+  const route = useRoute<RouteProps>();
+  const { inOffice } = route.params;
+
   const [nfcData, setNfcData] = useState<string | null>(null);
   const [hasPermission, setHasPermission] = useState<boolean>(false);
+  const [nfcSupported, setNfcSupported] = useState<boolean>(true);
   const [lottieUri, setLottieUri] = useState(
-    require("../assets/Lotties/nfc.json")
+    require("../../assets/Lotties/NFC/nfc.json")
   );
+  console.log(inOffice);
+  const [buttonDisabled, setButtonDisabled] = useState<boolean>();
+  const [buttonColor, setButtonColor] = useState<string>("#42A5F5"); // Default button color
 
   useEffect(() => {
     NfcManager.start();
@@ -33,22 +41,34 @@ const NFCreader = () => {
   const checkNfcPermission = async () => {
     const isEnabled = await NfcManager.isEnabled();
     if (!isEnabled) {
-      setLottieUri(require("../assets/Lotties/nfcdead.json"));
-      Toast.show("NFC Permissions required!", {
-        type: "warning",
+      setLottieUri(require("../../assets/Lotties/NFC/nfcdead.json"));
+      Toast.show("NFC hardware not available!", {
+        type: "danger",
         placement: "top",
         duration: 4000,
         animationType: "zoom-in",
       });
+      setNfcSupported(false);
+      setButtonDisabled(true); // Disable button if no NFC hardware
       return;
     }
     setHasPermission(true);
   };
 
   const readNfcTag = async () => {
-    if (!hasPermission) {
-      setLottieUri(require("../assets/Lotties/nfcdead.json"));
+    if (!hasPermission || !nfcSupported) {
+      setLottieUri(require("../../assets/Lotties/NFC/nfcdead.json"));
       Toast.show("NFC Permissions required!", {
+        type: "danger",
+        placement: "top",
+        duration: 4000,
+        animationType: "zoom-in",
+      });
+      return;
+    }
+    if (inOffice === false) {
+      setLottieUri(require("../../assets/Lotties/NFC/nfcdead.json"));
+      Toast.show("User needs to be in office", {
         type: "danger",
         placement: "top",
         duration: 4000,
@@ -58,7 +78,7 @@ const NFCreader = () => {
     }
 
     try {
-      setLottieUri(require("../assets/Lotties/nfcLoading.json"));
+      setLottieUri(require("../../assets/Lotties/NFC/nfcLoading.json"));
       setNfcData(null);
       await NfcManager.requestTechnology(NfcTech.Ndef);
       const tag = await NfcManager.getTag();
@@ -67,26 +87,60 @@ const NFCreader = () => {
         const payload = ndefMessage.payload;
         const payloadString = String.fromCharCode.apply(null, payload);
         setNfcData(payloadString);
-        setLottieUri(require("../assets/Lotties/nfcDone.json"));
+        setLottieUri(require("../../assets/Lotties/NFC/nfcDone.json"));
+        setButtonColor("green"); // Success -> green button
+        setButtonDisabled(true); // Disable after successful read
       }
     } catch (ex) {
       console.warn(ex);
-      setLottieUri(require("../assets/Lotties/nfcdead.json"));
+      setLottieUri(require("../../assets/Lotties/NFC/nfcdead.json"));
+      setButtonColor("red"); // Failure -> red button
     } finally {
       NfcManager.cancelTechnologyRequest();
     }
   };
 
+  const handleDisabledPress = () => {
+    if (!nfcSupported) {
+      Toast.show("NFC hardware not available", {
+        type: "warning",
+        placement: "bottom",
+        duration: 4000,
+        animationType: "slide-in",
+      });
+    } else if (!hasPermission) {
+      Toast.show("NFC Permissions required!", {
+        type: "warning",
+        placement: "bottom",
+        duration: 4000,
+        animationType: "slide-in",
+      });
+    } else if (inOffice === false) {
+      Toast.show("User not in office", {
+        type: "warning",
+        placement: "bottom",
+        duration: 4000,
+        animationType: "slide-in",
+      });
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.headerContainer}>
-        <NFCHeader />
-      </View>
       <View style={styles.lottieContainer}>
         <NFCLottie uri={lottieUri} />
       </View>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={readNfcTag}>
+        <TouchableOpacity
+          style={[
+            styles.button,
+            {
+              backgroundColor: buttonColor,
+              opacity: buttonDisabled ? 0.6 : 1, // Dim button when disabled
+            },
+          ]}
+          onPress={buttonDisabled ? handleDisabledPress : readNfcTag}
+        >
           <Text style={styles.buttonText}>Scan NFC tag</Text>
         </TouchableOpacity>
       </View>
@@ -114,10 +168,12 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   lottieContainer: {
-    flex: 2,
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
     width: "100%",
+    marginTop: 80,
+    zIndex: -40,
   },
   buttonContainer: {
     flex: 1,

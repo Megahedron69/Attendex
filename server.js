@@ -21,6 +21,7 @@ import loggerMiddleware from "./middleware/logger.js";
 import { enforceHTTPS } from "./middleware/secRedirects.js";
 import { charset } from "./middleware/charEncoding.js";
 import client from "./config/redisConfig.js";
+// import { sanitize } from "./middleware/expressSanitize.js";
 dotenv.config();
 
 const port = process.env.portKey || 5000;
@@ -70,6 +71,7 @@ app.use(cookieParser(process.env.cookey));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// app.use(sanitize);
 app.use(
   session({
     secret: process.env.session_key,
@@ -132,6 +134,7 @@ app.use((err, req, res, next) => {
   res.status(500).send("Something broke!");
 });
 
+//Comment it For rn
 const server = http2.createSecureServer(options, app);
 server.listen(port, () => {
   console.log(`All hands on port ${port}`);

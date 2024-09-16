@@ -62,13 +62,14 @@ const DashDown: FC = () => {
 						Click here to request for leaves and see the current status of
 						pending requests
 					</span>
-
-					<Button
-						block
-						className="text-white bg-gradient-to-r text-center from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 rounded-lg font-semibold text-lg"
-					>
-						<Link to="/User/ReqLeave">Request leave</Link>
-					</Button>
+					<Link to="/User/ReqLeave" style={{ all: "unset", width: "90%" }}>
+						<Button
+							block
+							className="text-white bg-gradient-to-r text-center from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 rounded-lg font-semibold text-lg"
+						>
+							Request leave
+						</Button>
+					</Link>
 				</div>
 			</div>
 		</div>

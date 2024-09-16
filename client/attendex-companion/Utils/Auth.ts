@@ -1,7 +1,9 @@
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { Toast } from "react-native-toast-notifications";
-// Email validation function
+
+const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}/auth`;
+
 const validateMyEmail = (email: string) => {
   return /^[\w+.-]+@[\da-z-]+\.[\d.a-z-]+$/i.test(email);
 };
@@ -30,8 +32,9 @@ export const mySignInFunc = async (
     return false;
   }
   try {
+    console.log(API_URL);
     const response = await axios.post(
-      `${process.env.EXPO_PUBLIC_BASE_URL}/auth/signIn`,
+      `${API_URL}/signIn`,
       {
         mail: email,
         pass: pass,
@@ -48,7 +51,7 @@ export const mySignInFunc = async (
 
     await SecureStore.setItemAsync("access_token", access_token);
     await SecureStore.setItemAsync("refresh_token", refresh_token);
-    navigation.navigate("NFC");
+    navigation.navigate("Home");
     Toast.show("Sign-in successful.", {
       type: "success",
       placement: "bottom",
@@ -57,6 +60,7 @@ export const mySignInFunc = async (
     });
     return true;
   } catch (error) {
+    console.log(error);
     Toast.show(`Sign-in error: ${error.response?.data || error.message}`, {
       type: "danger",
       placement: "bottom",
@@ -77,15 +81,12 @@ export const checkAuthStatus = async (): Promise<boolean> => {
       return false;
     }
 
-    const response = await axios.get(
-      `${process.env.EXPO_PUBLIC_BASE_URL}/auth/authStatus`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "client-type": "react-native",
-        },
-      }
-    );
+    const response = await axios.get(`${API_URL}/authStatus`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "client-type": "react-native",
+      },
+    });
     const { loginStatus } = response.data;
     return loginStatus;
   } catch (error) {
@@ -107,14 +108,11 @@ export const checkAuthStatus = async (): Promise<boolean> => {
 // Sign-out function
 export const signOut = async (navigation): Promise<boolean> => {
   try {
-    const response = await axios.get(
-      `${process.env.EXPO_PUBLIC_BASE_URL}/auth/signOut`,
-      {
-        headers: {
-          "client-type": "react-native",
-        },
-      }
-    );
+    const response = await axios.get(`${API_URL}/signOut`, {
+      headers: {
+        "client-type": "react-native",
+      },
+    });
 
     if (response.status === 200) {
       await SecureStore.deleteItemAsync("access_token");
