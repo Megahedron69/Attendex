@@ -27,20 +27,20 @@ dotenv.config();
 const port = process.env.portKey || 5000;
 const app = http2Express(express);
 
-const options = {
-  key:
-    process.env.NODE_ENV === "development"
-      ? fs.readFileSync("attendex.shop.key")
-      : fs.readFileSync("privkey2.pem"),
-  cert:
-    process.env.NODE_ENV === "development"
-      ? fs.readFileSync("attendex.shop.pem")
-      : fs.readFileSync("cert2.pem"),
-  ca:
-    process.env.NODE_ENV === "development"
-      ? fs.readFileSync("attendex.shop.crt")
-      : fs.readFileSync("fullchain2.pem"),
-};
+// const options = {
+//   key:
+//     process.env.NODE_ENV === "development"
+//       ? fs.readFileSync("attendex.shop.key")
+//       : fs.readFileSync("privkey2.pem"),
+//   cert:
+//     process.env.NODE_ENV === "development"
+//       ? fs.readFileSync("attendex.shop.pem")
+//       : fs.readFileSync("cert2.pem"),
+//   ca:
+//     process.env.NODE_ENV === "development"
+//       ? fs.readFileSync("attendex.shop.crt")
+//       : fs.readFileSync("fullchain2.pem"),
+// };
 
 const corsOptions = {
   origin: "http://localhost:5173",
@@ -135,10 +135,10 @@ app.use((err, req, res, next) => {
 });
 
 //Comment it For rn
-const server = http2.createSecureServer(options, app);
-server.listen(port, () => {
-  console.log(`All hands on port ${port}`);
-});
+// const server = http2.createSecureServer(options, app);
+// server.listen(port, () => {
+//   console.log(`All hands on port ${port}`);
+// });
 app.listen(80, () => {
   console.log("port 80");
 });
