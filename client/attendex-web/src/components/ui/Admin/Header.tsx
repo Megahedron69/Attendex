@@ -27,7 +27,7 @@ import {
 	UserOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
-import { Link, useRouter } from "@tanstack/react-router";
+import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import styled from "styled-components";
 import { signOut } from "../../../features/Auth";
 
@@ -159,7 +159,7 @@ const profileItems: ProfilePropz["profileItems"] = [
 
 // Create a menu from profileItems
 const menuk = () => {
-	const router = useRouter();
+	const navigate = useNavigate();
 	return (
 		<Menu onClick={handleProfileClick}>
 			{profileItems.map((item) => (
@@ -167,7 +167,7 @@ const menuk = () => {
 					key={item.key}
 					icon={item.icon}
 					onClick={async () => {
-						if (item.key === 2) await signOut(router);
+						if (item.key === 2) await signOut(navigate);
 					}}
 				>
 					{item.label}
@@ -219,14 +219,14 @@ function Header({
 						<Breadcrumb.Item>
 							<Link to="/Admin/Home">admin</Link>
 						</Breadcrumb.Item>
-						<Breadcrumb.Item>{name.replace("admin/", "")}</Breadcrumb.Item>
+						<Breadcrumb.Item>{name.replace("/admin/", "")}</Breadcrumb.Item>
 					</Breadcrumb>
 					<div className="ant-page-header-heading">
 						<span
 							className="ant-page-header-heading-title"
 							style={{ textTransform: "capitalize" }}
 						>
-							{subName.replace("admin/", "")}
+							{subName.replace("/admin/", "")}
 						</span>
 					</div>
 				</Col>

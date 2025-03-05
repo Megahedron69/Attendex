@@ -4,7 +4,7 @@ import { useState } from "react";
 import HeroImage from "../../../assets/images/hero-image.png";
 import myVid from "../../../assets/videos/video.mp4";
 import Modal from "../../utils/LandingPageUtils/modal";
-
+import { MobileOutlined, WindowsFilled } from "@ant-design/icons";
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/explicit-function-return-type
 export default function Hero() {
 	const [videoModalOpen, setVideoModalOpen] = useState<boolean>(false);
@@ -76,7 +76,8 @@ export default function Hero() {
 										className="btn text-white bg-blue-600 hover:bg-blue-700 w-full mb-4 sm:w-auto sm:mb-0"
 										href="#techStack"
 									>
-										Tech stack
+										<MobileOutlined className="mr-3" />
+										Companion App
 									</a>
 								</div>
 								<div>
@@ -84,7 +85,8 @@ export default function Hero() {
 										className="btn text-white bg-gray-900 hover:bg-gray-800 w-full sm:w-auto sm:ml-4"
 										href="https://github.com/Megahedron69/Attendex"
 									>
-										Learn more
+										<WindowsFilled className="mr-3" />
+										Desktop App
 									</a>
 								</div>
 							</div>

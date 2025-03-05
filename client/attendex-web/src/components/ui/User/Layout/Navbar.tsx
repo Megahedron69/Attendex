@@ -15,12 +15,12 @@ import {
 import logo from "../../../../assets/images/logo.png";
 import SearchBar from "./Searchbar";
 import { signOut } from "../../../../features/Auth";
-import { Link, useRouter, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 const { Header } = Layout;
 
 const Navbar: FC = () => {
 	const [collapsed, setCollapsed] = useState(false);
-	const router = useRouter();
+	const navigate = useNavigate();
 	const routerz = useRouterState();
 	const pathe = routerz.location.pathname;
 	const pathname = pathe.replace("/User/", "") || "";
@@ -34,7 +34,7 @@ const Navbar: FC = () => {
 				key="1"
 				icon={<UserOutlined />}
 				onClick={() => {
-					router.navigate({ to: "/User/Profile" });
+					navigate({ to: "/User/Profile" });
 				}}
 			>
 				Profile
@@ -43,7 +43,7 @@ const Navbar: FC = () => {
 				key="2"
 				icon={<LogoutOutlined />}
 				onClick={async () => {
-					await signOut(router);
+					await signOut(navigate);
 				}}
 			>
 				Sign Out
@@ -62,7 +62,7 @@ const Navbar: FC = () => {
 					<button
 						type="button"
 						onClick={() => {
-							router.navigate({ to: "/User/Home" });
+							navigate({ to: "/User/Home" });
 						}}
 						className={`${pathname == "Home" ? "text-blue-400" : "text-white"} hover:text-blue-400 bg-[#000002] hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 rounded-lg text-md font-semibold me-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 active:text-blue-400`}
 					>
@@ -71,7 +71,7 @@ const Navbar: FC = () => {
 					<button
 						type="button"
 						onClick={() => {
-							router.navigate({ to: "/User/Markit" });
+							navigate({ to: "/User/Markit" });
 						}}
 						className={`${pathname == "Markit" ? "text-blue-400" : "text-white"} hover:text-blue-400 bg-[#000002] hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 rounded-lg text-md font-semibold me-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700`}
 					>
@@ -80,7 +80,7 @@ const Navbar: FC = () => {
 					<button
 						type="button"
 						onClick={() => {
-							router.navigate({ to: "/User/ReqLeave" });
+							navigate({ to: "/User/ReqLeave" });
 						}}
 						className={`${pathname == "ReqLeave" ? "text-blue-400" : "text-white"} hover:text-blue-400 bg-[#000002] hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 rounded-lg text-md font-semibold me-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700`}
 					>

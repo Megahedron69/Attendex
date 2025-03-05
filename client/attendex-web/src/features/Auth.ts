@@ -22,12 +22,14 @@ const isAuthenticated = async () => {
 		return {
 			loginStatus: response.data.loginStatus,
 			adminStatus: response.data.adminStatus,
+			mfaStatus: response.data.mfaStatus,
 		};
 	} catch (error) {
 		console.log(error);
 		return {
 			loginStatus: false,
 			adminStatus: false,
+			mfaStatus: false,
 		};
 	}
 };
@@ -47,6 +49,17 @@ export const isAdmin = async (): Promise<boolean> => {
 		const authStatus = await isAuthenticated();
 		console.log("user is admin:", authStatus.adminStatus);
 		return authStatus.adminStatus;
+	} catch (error) {
+		console.log(error);
+		return false;
+	}
+};
+
+export const mfaStat = async (): Promise<boolean> => {
+	try {
+		const authStatus = await isAuthenticated();
+		console.log("user mfa statues", authStatus.mfaStatus);
+		return authStatus.mfaStatus;
 	} catch (error) {
 		console.log(error);
 		return false;
@@ -193,7 +206,7 @@ export const verifyMyOTP = async (otp: string, mfaID: string, router: any) => {
 	}
 };
 
-export const signOut = async (router) => {
+export const signOut = async (navigate) => {
 	try {
 		const response = await axios.get(
 			`${String(import.meta.env["VITE_BASE_URL"])}/auth/signOut`,
@@ -201,7 +214,7 @@ export const signOut = async (router) => {
 				withCredentials: true,
 			}
 		);
-		if (response) router.navigate({ to: "/" });
+		if (response) navigate({ to: "/" });
 		console.log(response);
 	} catch (error) {
 		console.log(error);

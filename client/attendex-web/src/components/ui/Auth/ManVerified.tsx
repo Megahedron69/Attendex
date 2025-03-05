@@ -419,7 +419,7 @@ const ManVerified: React.FC = () => {
 									placeholder={"Director"}
 									className="bg-gray-50 outline-none border-0 hover:border-2 focus:border-2 text-center peer invalid:border-pink-500 invalid:text-pink-600
       focus:invalid:border-pink-500 focus:invalid:ring-4-pink-500 border-none"
-									pattern="[a-zA-Z0-9]+"
+									pattern="[a-zA-Z0-9\s]+"
 									size="small"
 									defaultValue={jobTitle}
 									name="JobTitle"

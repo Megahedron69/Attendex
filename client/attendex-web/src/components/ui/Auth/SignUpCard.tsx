@@ -50,6 +50,7 @@ export const SignUpCard = () => {
 		emailCStat: false,
 		userID: "",
 	});
+	console.log(mfaData);
 	const validateMyPass = (pas: string) => {
 		const p = pas.match(
 			/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/i

@@ -17,6 +17,7 @@ import {
   isAdmin,
   mfaEnroll,
   mfaVerify,
+  checkMFAstat,
 } from "../controllers/Auth.js";
 
 const authRouter = Router();
@@ -80,11 +81,13 @@ authRouter.get("/authStatus", async (req, res, next) => {
   }
   try {
     const isAuthenticated = await checkMyAuthStatus(token);
+    const mfaStat = await checkMFAstat();
     if (isAuthenticated.status) {
       res.status(200).json({
         message: "User is authenticated",
         loginStatus: isAuthenticated.status,
         adminStatus: isAuthenticated.adminStat,
+        mfaStatus: mfaStat.status,
       });
     } else {
       res.status(401).json({ message: "User is not authenticated" });

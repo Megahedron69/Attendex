@@ -118,6 +118,30 @@ export const resetMyPass = async (email, tok) => {
   }
 };
 
+export const checkMFAstat = async () => {
+  try {
+    const { data, error } =
+      await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (error) {
+      throw error;
+    }
+    if (data.currentLevel === "aal2" && data.nextLevel === "aal2") {
+      return { status: true, message: "MFA is verified and active." };
+    } else if (data.nextLevel === "aal2" && data.currentLevel === "aal1") {
+      return {
+        status: false,
+        message: "MFA factor enrolled but not yet verified.",
+      };
+    } else if (data.currentLevel === "aal1" && data.nextLevel === "aal1") {
+      return { status: false, message: "No MFA enrolled." };
+    } else if (data.currentLevel === "aal2" && data.nextLevel === "aal1") {
+      return { status: false, message: "MFA factor has been disabled." };
+    }
+  } catch (err) {
+    return { status: false, message: "Error fetching MFA status." };
+  }
+};
+
 export const mfaEnroll = async (id) => {
   try {
     const { data, error } = await supabase.auth.mfa.enroll({

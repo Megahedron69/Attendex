@@ -6,7 +6,7 @@ export const Route = createFileRoute("/Admin/employees")({
 	beforeLoad: async ({ location }) => {
 		if (!(await checkAuthStatus())) {
 			throw redirect({
-				to: "/auth/SignIn",
+				to: "/Auth/SignIn",
 				search: {
 					redirect: location.href,
 				},

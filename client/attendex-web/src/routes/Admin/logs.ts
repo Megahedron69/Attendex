@@ -6,7 +6,7 @@ export const Route = createFileRoute("/Admin/logs")({
 	beforeLoad: async ({ location }) => {
 		if (!(await checkAuthStatus())) {
 			throw redirect({
-				to: "/auth/SignIn",
+				to: "/Auth/SignIn",
 				search: {
 					// Use the current location to power a redirect after login
 					// (Do not use `router.state.resolvedLocation` as it can

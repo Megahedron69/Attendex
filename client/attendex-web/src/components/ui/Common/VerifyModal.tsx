@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import { type FC, useState } from "react";
+import type { FC } from "react";
 import { Modal, Collapse, type CollapseProps, message } from "antd";
 import { CheckCircleFilled, CloseCircleFilled } from "@ant-design/icons";
 import { PostReq } from "../../../store/DataPost";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouter } from "@tanstack/react-router";
+import { signOut } from "../../../features/Auth";
 
 type EmailProps = {
 	email: string;
@@ -86,7 +87,7 @@ export const EnrollMFA: FC<MFAprops> = ({
 	mfaURI,
 	mfaStat,
 	emailCstat,
-	naviBool,
+	naviBool = false,
 }) => {
 	const navigate = useNavigate();
 	const submitFn = async (uID: string, mID: string, mStat: boolean) => {
@@ -97,7 +98,7 @@ export const EnrollMFA: FC<MFAprops> = ({
 			const resp = await PostReq("/setClaim", { uID, mID, mStat });
 			if (resp.status) {
 				message.success("Sign In requirements completed");
-				naviBool ?? navigate({ to: "/Auth/SignIn" });
+				naviBool ?? signOut(navigate);
 			} else {
 				message.error("Something went wrong try again");
 			}

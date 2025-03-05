@@ -15,7 +15,7 @@ const Dashmain: FC = () => {
 					Track your attendance here!
 				</p>
 				<div className="mt-16 rounded-3xl flex flex-col sm:flex-row justify-between items-center p-8 bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800">
-					<div className="mb-4 sm:mb-0 sm:mr-4">
+					<div className=" sm:mb-0 sm:mr-4">
 						<span className="font-bold text-2xl text-black">
 							Mark attendance
 						</span>
